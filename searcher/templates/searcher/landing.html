@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block title %}ActivityHub | Modern Social Content Workspace{% endblock %}
+
+{% block content %}
+<section class="neo-landing reveal">
+    <div class="neo-landing__card">
+        <div class="neo-landing__hero">
+            <div class="neo-landing__copy">
+                <p class="neo-landing__eyebrow">Welcome to ActivityHub</p>
+                <h1>The best way to manage all your social content.</h1>
+                <p class="neo-landing__subtitle">Track LinkedIn, X, Instagram, YouTube, blogs, projects, and research links in one clean workflow with filters that actually help.</p>
+                <div class="neo-landing__actions">
+                    <a href="{% url 'accounts:signup' %}" class="btn btn-primary">Try it free</a>
+                    <a href="{% url 'accounts:login' %}?next={% url 'searcher:posts' %}" class="btn btn-secondary">See how it works</a>
+                </div>
+            </div>
+
+            <div class="neo-landing__visual" aria-hidden="true">
+                <div class="neo-pill neo-pill--a"></div>
+                <div class="neo-pill neo-pill--b"></div>
+                <div class="neo-pill neo-pill--c"></div>
+                <div class="neo-pill neo-pill--d"></div>
+                <div class="neo-pill neo-pill--e"></div>
+                <div class="neo-chip">ActivityHub</div>
+            </div>
+        </div>
+
+        <div class="neo-landing__trust">
+            <p>Built for creators, marketing teams, and research squads</p>
+            <div class="neo-landing__logos">
+                <span>LinkedIn</span>
+                <span>X</span>
+                <span>Instagram</span>
+                <span>YouTube</span>
+                <span>Medium</span>
+                <span>Notion</span>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

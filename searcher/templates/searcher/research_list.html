@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block title %}My Research Papers | ActivityHub{% endblock %}
+
+{% block content %}
+<section class="panel reveal">
+    <div class="section-row">
+        <div>
+            <p class="eyebrow">Research Papers</p>
+            <h1>Manage your research library</h1>
+        </div>
+        <a href="{% url 'searcher:research-create' %}" class="btn btn-primary">Create research paper</a>
+    </div>
+
+    {% if papers %}
+        <div class="table-wrap">
+            <table>
+                <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Publication</th>
+                    <th>Published On</th>
+                    <th>Link</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for paper in papers %}
+                    <tr>
+                        <td>{{ paper.title }}</td>
+                        <td>{{ paper.publication|default:'-' }}</td>
+                        <td>{{ paper.published_on|date:'Y-m-d'|default:'-' }}</td>
+                        <td><a href="{{ paper.url }}" target="_blank" rel="noopener">Open</a></td>
+                        <td>
+                            <a href="{% url 'searcher:research-edit' paper.id %}">Edit</a> |
+                            <a href="{% url 'searcher:research-delete' paper.id %}">Delete</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p class="muted">No research papers yet. Add your first one.</p>
+    {% endif %}
+</section>
+{% endblock %}

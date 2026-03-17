@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block title %}Profile | ActivityHub{% endblock %}
+
+{% block content %}
+<section class="panel reveal">
+    <div class="section-row">
+        <div>
+            <p class="eyebrow">Profile</p>
+            <h1>Update your details</h1>
+        </div>
+        <a href="{% url 'searcher:home' %}" class="btn btn-secondary">Back</a>
+    </div>
+
+    <form method="post" enctype="multipart/form-data" class="form-grid">
+        {% csrf_token %}
+        {% for field in form %}
+            <label class="form-field">
+                <span>{{ field.label }}</span>
+                {{ field }}
+                {% if field.errors %}
+                    <small class="field-error">{{ field.errors|striptags }}</small>
+                {% endif %}
+            </label>
+        {% endfor %}
+        <button type="submit" class="btn btn-primary">Save profile</button>
+    </form>
+
+    {% if profile.profile_picture %}
+        <div class="profile-preview">
+            <p class="muted">Current profile picture</p>
+            <img src="{{ profile.profile_picture.url }}" alt="Profile picture" class="avatar-preview">
+        </div>
+    {% endif %}
+</section>
+{% endblock %}

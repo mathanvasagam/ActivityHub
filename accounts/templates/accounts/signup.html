@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block title %}Create Account | ActivityHub{% endblock %}
+
+{% block content %}
+<section class="auth-layout reveal">
+    <div class="panel intro-panel">
+        <p class="eyebrow">New Here</p>
+        <h1>Create your ActivityHub workspace.</h1>
+        <p class="muted auth-intro-copy">Set up your account and start managing social content with one clean operational workflow.</p>
+    </div>
+
+    <div class="panel form-panel">
+        {% if firebase_auth_enabled %}
+            <h2>Create account</h2>
+            <form method="post" class="form-grid" onsubmit="return false;">
+                {% csrf_token %}
+                <label class="form-field">
+                    <span>Email</span>
+                    <input type="email" id="firebase-signup-email" placeholder="you@example.com" autocomplete="email" required>
+                </label>
+                <label class="form-field">
+                    <span>Password</span>
+                    <input type="password" id="firebase-signup-password" placeholder="Create a password" autocomplete="new-password" required>
+                </label>
+                <label class="form-field">
+                    <span>Confirm password</span>
+                    <input type="password" id="firebase-signup-password2" placeholder="Re-enter password" autocomplete="new-password" required>
+                </label>
+                <button type="button" id="firebase-email-signup" class="btn btn-primary">Create an account</button>
+                <small id="firebase-signup-error" class="field-error" hidden></small>
+                
+            </form>
+            {{ firebase_web_config|json_script:"firebase-web-config" }}
+        {% else %}
+            <h2>Sign up</h2>
+            <form method="post" class="form-grid">
+                {% csrf_token %}
+                {% for field in form %}
+                    <label class="form-field">
+                        <span>{{ field.label }}</span>
+                        {{ field }}
+                        {% if field.help_text %}
+                            <small class="field-help">{{ field.help_text }}</small>
+                        {% endif %}
+                        {% if field.errors %}
+                            <small class="field-error">{{ field.errors|striptags }}</small>
+                        {% endif %}
+                    </label>
+                {% endfor %}
+                <button type="submit" class="btn btn-primary">Create account</button>
+            </form>
+        {% endif %}
+        <p class="muted">Already registered? <a href="{% url 'accounts:login' %}">Login</a>.</p>
+    </div>
+</section>
+{% endblock %}

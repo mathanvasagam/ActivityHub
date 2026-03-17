@@ -1,0 +1,166 @@
+{% extends 'base.html' %}
+
+{% block title %}Organization | ActivityHub{% endblock %}
+
+{% block content %}
+<section class="panel reveal">
+    <div class="section-row">
+        <div>
+            <p class="eyebrow">Admin Dashboard</p>
+            <h1>All users social activity</h1>
+        </div>
+        <div class="section-row">
+            <a href="{% url 'searcher:export-posts-csv' %}?{{ request.GET.urlencode }}" class="btn btn-secondary">Export posts CSV</a>
+            <a href="{% url 'searcher:export-posts-xlsx' %}?{{ request.GET.urlencode }}" class="btn btn-secondary">Export posts Excel</a>
+            <a href="{% url 'searcher:export-summary-csv' %}?{{ request.GET.urlencode }}" class="btn btn-secondary">Export summary CSV</a>
+            <a href="{% url 'searcher:export-summary-xlsx' %}?{{ request.GET.urlencode }}" class="btn btn-secondary">Export summary Excel</a>
+        </div>
+    </div>
+
+    <div class="metrics-grid">
+        <div class="metric-card">
+            <span>Total Posts</span>
+            <strong>{{ total_posts }}</strong>
+        </div>
+        <div class="metric-card">
+            <span>Total Members</span>
+            <strong>{{ total_users }}</strong>
+        </div>
+        <div class="metric-card">
+            <span>Admin Scope</span>
+            <strong>All Users Data</strong>
+        </div>
+    </div>
+</section>
+
+<section class="panel reveal-delay-1">
+    <h2>Filter</h2>
+    <form method="get" class="filter-row filter-row-five">
+        <label class="form-field compact-field">
+            <span>Keyword</span>
+            {{ filter_form.q }}
+        </label>
+        <label class="form-field compact-field">
+            <span>Period</span>
+            {{ filter_form.period }}
+        </label>
+        <label class="form-field compact-field">
+            <span>User</span>
+            {{ filter_form.user_name }}
+        </label>
+        <label class="form-field compact-field">
+            <span>Company</span>
+            {{ filter_form.company_name }}
+        </label>
+        <label class="form-field compact-field">
+            <span>Start date</span>
+            {{ filter_form.start_date }}
+        </label>
+        <label class="form-field compact-field">
+            <span>End date</span>
+            {{ filter_form.end_date }}
+        </label>
+        <button type="submit" class="btn btn-secondary">Apply</button>
+    </form>
+
+    {% if filter_form.non_field_errors %}
+        <p class="field-error">{{ filter_form.non_field_errors|striptags }}</p>
+    {% endif %}
+</section>
+
+<section class="layout-grid reveal-delay-1">
+    <article class="panel">
+        <h2>Per member counts</h2>
+        {% if user_summary %}
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>User</th>
+                        <th>Total Posts</th>
+                        <th>Last 7 Days</th>
+                        <th>Download</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for row in user_summary %}
+                        <tr>
+                            <td>{{ row.user__username }}</td>
+                            <td>{{ row.total_posts }}</td>
+                            <td>{{ row.last_7_days_posts }}</td>
+                            <td>
+                                <a href="{% url 'searcher:export-user-posts-csv' row.user %}?{{ request.GET.urlencode }}" class="btn btn-secondary">Download report</a>
+                                <a href="{% url 'searcher:export-user-posts-xlsx' row.user %}?{{ request.GET.urlencode }}" class="btn btn-secondary">Download Excel</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p class="muted">No member data available.</p>
+        {% endif %}
+    </article>
+
+    <article class="panel">
+        <h2>Company post counts</h2>
+        {% if company_summary %}
+            <ul class="query-list">
+                {% for row in company_summary %}
+                    <li>
+                        <a href="#">
+                            <strong>{{ row.company_name }}</strong>
+                            <span>{{ row.post_count }} posts</span>
+                        </a>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p class="muted">No company data available.</p>
+        {% endif %}
+    </article>
+</section>
+
+<section class="panel reveal-delay-1">
+    <h2>All posts with links</h2>
+    {% if posts %}
+        <div class="table-wrap">
+            <table>
+                <thead>
+                <tr>
+                    <th>User</th>
+                    <th>Company</th>
+                    <th>Title</th>
+                    <th>Posted At</th>
+                    <th>Post Link</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for post in posts %}
+                    <tr>
+                        <td>{{ post.user.username }}</td>
+                        <td>{{ post.company_name }}</td>
+                        <td>{{ post.post_title }}</td>
+                        <td>{{ post.posted_at|date:'Y-m-d H:i' }}</td>
+                        <td><a href="{{ post.post_url }}" target="_blank" rel="noopener">Open</a></td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% if page_obj.has_other_pages %}
+            <div class="pagination">
+                {% if page_obj.has_previous %}
+                    <a class="btn btn-secondary" href="?page={{ page_obj.previous_page_number }}{% if querystring %}&{{ querystring }}{% endif %}">Previous</a>
+                {% endif %}
+                <span class="pagination__meta">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+                {% if page_obj.has_next %}
+                    <a class="btn btn-secondary" href="?page={{ page_obj.next_page_number }}{% if querystring %}&{{ querystring }}{% endif %}">Next</a>
+                {% endif %}
+            </div>
+        {% endif %}
+    {% else %}
+        <p class="muted">No post records match current filters.</p>
+    {% endif %}
+</section>
+{% endblock %}

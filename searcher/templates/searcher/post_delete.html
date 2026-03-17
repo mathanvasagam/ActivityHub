@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block title %}Delete Post | ActivityHub{% endblock %}
+
+{% block content %}
+<section class="panel reveal">
+    <p class="eyebrow">Delete</p>
+    <h1>Delete this post?</h1>
+    <p>This action cannot be undone.</p>
+    <p><strong>{{ post.post_title }}</strong> ({{ post.company_name }})</p>
+
+    <form method="post" class="section-row">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-primary">Yes, delete</button>
+        <a href="{% url 'searcher:posts' %}" class="btn btn-secondary">Cancel</a>
+    </form>
+</section>
+{% endblock %}

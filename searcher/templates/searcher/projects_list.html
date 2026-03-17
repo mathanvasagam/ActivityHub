@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block title %}My Projects | ActivityHub{% endblock %}
+
+{% block content %}
+<section class="panel reveal">
+    <div class="section-row">
+        <div>
+            <p class="eyebrow">My Projects</p>
+            <h1>Manage your projects</h1>
+        </div>
+        <a href="{% url 'searcher:project-create' %}" class="btn btn-primary">Create project</a>
+    </div>
+
+    {% if projects %}
+        <div class="table-wrap">
+            <table>
+                <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Start Date</th>
+                    <th>End Date</th>
+                    <th>Description</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for project in projects %}
+                    <tr>
+                        <td>{{ project.name }}</td>
+                        <td>{{ project.start_date|date:'Y-m-d'|default:'-' }}</td>
+                        <td>{{ project.end_date|date:'Y-m-d'|default:'-' }}</td>
+                        <td>{{ project.description|default:'-' }}</td>
+                        <td>
+                            <a href="{% url 'searcher:project-edit' project.id %}">Edit</a> |
+                            <a href="{% url 'searcher:project-delete' project.id %}">Delete</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p class="muted">No projects yet. Create your first project.</p>
+    {% endif %}
+</section>
+{% endblock %}

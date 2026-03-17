@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+
+{% block title %}My Posts | ActivityHub{% endblock %}
+
+{% block content %}
+<section class="panel reveal">
+    <div class="section-row">
+        <div>
+            <p class="eyebrow">My Posts</p>
+            <h1>Manage your LinkedIn posts</h1>
+        </div>
+        <a href="{% url 'searcher:post-create' %}" class="btn btn-primary">Create post</a>
+    </div>
+
+    <form method="get" class="filter-row filter-row-five">
+        <label class="form-field compact-field">
+            <span>Keyword</span>
+            {{ filter_form.q }}
+        </label>
+        <label class="form-field compact-field">
+            <span>Period</span>
+            {{ filter_form.period }}
+        </label>
+        <label class="form-field compact-field">
+            <span>Company</span>
+            {{ filter_form.company_name }}
+        </label>
+        <label class="form-field compact-field">
+            <span>Start date</span>
+            {{ filter_form.start_date }}
+        </label>
+        <label class="form-field compact-field">
+            <span>End date</span>
+            {{ filter_form.end_date }}
+        </label>
+        <button type="submit" class="btn btn-secondary">Apply</button>
+    </form>
+
+    {% if posts %}
+        <div class="table-wrap">
+            <table>
+                <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Company</th>
+                    <th>Posted At</th>
+                    <th>Link</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for post in posts %}
+                    <tr>
+                        <td>{{ post.post_title }}</td>
+                        <td>{{ post.company_name }}</td>
+                        <td>{{ post.posted_at|date:'Y-m-d H:i' }}</td>
+                        <td><a href="{{ post.post_url }}" target="_blank" rel="noopener">Open</a></td>
+                        <td>
+                            <a href="{% url 'searcher:post-edit' post.id %}">Edit</a> |
+                            <a href="{% url 'searcher:post-delete' post.id %}">Delete</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% if page_obj.has_other_pages %}
+            <div class="pagination">
+                {% if page_obj.has_previous %}
+                    <a class="btn btn-secondary" href="?page={{ page_obj.previous_page_number }}{% if querystring %}&{{ querystring }}{% endif %}">Previous</a>
+                {% endif %}
+                <span class="pagination__meta">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+                {% if page_obj.has_next %}
+                    <a class="btn btn-secondary" href="?page={{ page_obj.next_page_number }}{% if querystring %}&{{ querystring }}{% endif %}">Next</a>
+                {% endif %}
+            </div>
+        {% endif %}
+    {% else %}
+        <p class="muted">No posts available for this filter.</p>
+    {% endif %}
+</section>
+{% endblock %}

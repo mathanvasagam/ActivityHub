@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if is_edit %}Edit Research Paper{% else %}Create Research Paper{% endif %} | ActivityHub{% endblock %}
+
+{% block content %}
+<section class="panel reveal">
+    <div class="section-row">
+        <div>
+            <p class="eyebrow">Research</p>
+            <h1>{% if is_edit %}Edit research paper{% else %}Create research paper{% endif %}</h1>
+        </div>
+        <a href="{% url 'searcher:research' %}" class="btn btn-secondary">Back to research</a>
+    </div>
+
+    <form method="post" class="form-grid">
+        {% csrf_token %}
+        {% for field in form %}
+            <label class="form-field">
+                <span>{{ field.label }}</span>
+                {{ field }}
+                {% if field.errors %}
+                    <small class="field-error">{{ field.errors|striptags }}</small>
+                {% endif %}
+            </label>
+        {% endfor %}
+        <button type="submit" class="btn btn-primary" data-submit-label="Saving...">
+            <span class="spinner" aria-hidden="true"></span>
+            <span>{% if is_edit %}Update paper{% else %}Create paper{% endif %}</span>
+        </button>
+    </form>
+</section>
+{% endblock %}

@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block title %}My Blogs | ActivityHub{% endblock %}
+
+{% block content %}
+<section class="panel reveal">
+    <div class="section-row">
+        <div>
+            <p class="eyebrow">My Blogs</p>
+            <h1>Manage your blog content</h1>
+        </div>
+        <a href="{% url 'searcher:blog-create' %}" class="btn btn-primary">Create blog</a>
+    </div>
+
+    {% if blogs %}
+        <div class="table-wrap">
+            <table>
+                <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Platform</th>
+                    <th>Published On</th>
+                    <th>Link</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for blog in blogs %}
+                    <tr>
+                        <td>{{ blog.title }}</td>
+                        <td>{{ blog.platform|default:'-' }}</td>
+                        <td>{{ blog.published_on|date:'Y-m-d'|default:'-' }}</td>
+                        <td><a href="{{ blog.url }}" target="_blank" rel="noopener">Open</a></td>
+                        <td>
+                            <a href="{% url 'searcher:blog-edit' blog.id %}">Edit</a> |
+                            <a href="{% url 'searcher:blog-delete' blog.id %}">Delete</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p class="muted">No blogs yet. Create your first blog entry.</p>
+    {% endif %}
+</section>
+{% endblock %}

@@ -1,0 +1,122 @@
+{% load static %}
+{% now "U" as cache_bust %}
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}ActivityHub | Social Content Workspace{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}?v={{ cache_bust }}">
+</head>
+<body>
+<div class="page-bg" aria-hidden="true"></div>
+
+{% if user.is_authenticated %}
+<header class="app-topbar">
+    <div class="app-topbar__left">
+        <button id="menu-toggle" class="menu-toggle" type="button" aria-label="Toggle navigation" aria-expanded="false">Menu</button>
+        <a href="{% url 'searcher:home' %}" class="brand brand--compact">
+            <img src="{% static 'images/logo.png' %}" alt="ActivityHub logo" class="brand-logo">
+            <span class="brand-text">
+                <span class="brand-wordmark">ActivityHub</span>
+                <span class="brand-tagline">Filter first. Create fast.</span>
+            </span>
+        </a>
+    </div>
+    <div class="app-topbar__right">
+        {% if user.is_staff %}
+            <span class="sidebar-note">Admin workspace</span>
+        {% else %}
+                <form method="get" action="{% url 'searcher:posts' %}" class="global-search" role="search">
+                    <input type="search" name="q" value="{{ request.GET.q|default_if_none:'' }}" placeholder="Search posts" aria-label="Search ActivityHub content">
+                </form>
+            <a href="{% url 'searcher:profile' %}" class="profile-chip" aria-label="Open profile">
+                {% if header_avatar_url %}
+                    <img src="{{ header_avatar_url }}" alt="Profile" class="profile-chip__image">
+                {% else %}
+                    <span class="profile-chip__initials">{{ header_avatar_initials }}</span>
+                {% endif %}
+            </a>
+        {% endif %}
+    </div>
+</header>
+
+<div class="app-shell">
+    <aside id="main-nav" class="app-sidebar" aria-label="Main navigation">
+        <nav class="sidebar-nav">
+            {% if not user.is_staff %}
+                <a href="{% url 'searcher:home' %}">Home</a>
+                <a href="{% url 'searcher:posts' %}">Posts</a>
+                <a href="{% url 'searcher:projects' %}">Projects</a>
+                <a href="{% url 'searcher:blogs' %}">Blogs</a>
+                <a href="{% url 'searcher:research' %}">Research</a>
+            {% endif %}
+            {% if user.is_staff %}
+                <a href="{% url 'searcher:organization' %}">Organization</a>
+            {% endif %}
+        </nav>
+
+        <div class="sidebar-actions">
+            {% if user.is_staff %}<p class="sidebar-note">Admin mode is always active for staff users.</p>{% endif %}
+
+            <form action="{% url 'accounts:logout' %}" method="post" class="inline-form">
+                {% csrf_token %}
+                <button type="submit" class="link-button sidebar-link-button">Logout</button>
+            </form>
+        </div>
+    </aside>
+    <main class="app-content">
+{% else %}
+<header class="site-header">
+    <div class="container nav-row">
+        <a href="{% url 'home' %}" class="brand">
+            <img src="{% static 'images/logo.png' %}" alt="ActivityHub logo" class="brand-logo">
+            <span class="brand-text">
+                <span class="brand-wordmark">ActivityHub</span>
+                <span class="brand-tagline">Social Content Intelligence</span>
+            </span>
+        </a>
+        <button id="menu-toggle" class="menu-toggle" type="button" aria-label="Open menu" aria-expanded="false">Menu</button>
+        <nav id="main-nav" class="nav-links" aria-label="Main navigation">
+            <a href="{% url 'accounts:login' %}">Login</a>
+            <a href="{% url 'accounts:signup' %}" class="nav-cta nav-cta-spaced">Sign up</a>
+        </nav>
+    </div>
+</header>
+<main class="container main-content">
+{% endif %}
+
+{% if messages %}
+    <section class="flash-stack" aria-live="polite">
+        {% for message in messages %}
+            <div class="flash flash-{{ message.tags|default:'info' }}">{{ message }}</div>
+        {% endfor %}
+    </section>
+{% endif %}
+
+{% block content %}{% endblock %}
+</main>
+
+{% if user.is_authenticated %}
+</div>
+{% endif %}
+
+<script src="{% static 'js/main.js' %}?v={{ cache_bust }}"></script>
+
+{% if user.is_authenticated and not user.is_staff %}
+<div class="create-modal" id="create-modal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="create-modal-title">
+    <div class="create-modal__panel" role="document">
+        <div class="create-modal__head">
+            <h2 id="create-modal-title">What do you want to add?</h2>
+            <button type="button" class="create-modal__close" id="create-modal-close" aria-label="Close create dialog">Close</button>
+        </div>
+        <p class="muted">Choose a content type to open its dedicated form and CRUD area.</p>
+        <div class="create-modal__grid" id="create-modal-grid"></div>
+    </div>
+</div>
+{% endif %}
+</body>
+</html>

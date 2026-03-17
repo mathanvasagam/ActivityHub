@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard | ActivityHub{% endblock %}
+
+{% block content %}
+<section class="hero-card reveal">
+    <p class="eyebrow">User Workspace</p>
+    <h1>Track each team member's LinkedIn posting activity.</h1>
+    <p>Update your profile once, then submit every LinkedIn post with title, company, date/time, and link.</p>
+</section>
+
+<section class="layout-grid reveal-delay-1">
+    <article class="panel form-panel">
+        <h2>My profile details</h2>
+        <form method="post" class="form-grid">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="save_profile">
+            {% for field in profile_form %}
+                <label class="form-field">
+                    <span>{{ field.label }}</span>
+                    {{ field }}
+                    {% if field.errors %}
+                        <small class="field-error">{{ field.errors|striptags }}</small>
+                    {% endif %}
+                </label>
+            {% endfor %}
+            <button type="submit" class="btn btn-secondary">Save profile</button>
+        </form>
+    </article>
+
+    <aside class="panel side-panel">
+        <h2>Add LinkedIn post</h2>
+        <form method="post" class="form-grid" id="search-form">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="add_post">
+            {% for field in post_form %}
+                <label class="form-field">
+                    <span>{{ field.label }}</span>
+                    {{ field }}
+                    {% if field.errors %}
+                        <small class="field-error">{{ field.errors|striptags }}</small>
+                    {% endif %}
+                </label>
+            {% endfor %}
+            <button type="submit" class="btn btn-primary" data-submit-label="Saving...">
+                <span class="spinner" aria-hidden="true"></span>
+                <span>Add post</span>
+            </button>
+        </form>
+    </aside>
+</section>
+
+<section class="panel reveal-delay-1">
+    <div class="section-row">
+        <h2>My latest submitted posts</h2>
+        <a href="{% url 'searcher:history' %}" class="btn btn-secondary">View all</a>
+    </div>
+    {% if user_posts %}
+        <div class="table-wrap">
+            <table>
+                <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Company</th>
+                    <th>Posted At</th>
+                    <th>Post URL</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for post in user_posts %}
+                    <tr>
+                        <td>{{ post.post_title }}</td>
+                        <td>{{ post.company_name }}</td>
+                        <td>{{ post.posted_at|date:'Y-m-d H:i' }}</td>
+                        <td><a href="{{ post.post_url }}" target="_blank" rel="noopener">Open</a></td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p class="muted">No posts submitted yet.</p>
+    {% endif %}
+</section>
+{% endblock %}

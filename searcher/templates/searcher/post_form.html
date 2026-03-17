@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if is_edit %}Edit Post{% else %}Create Post{% endif %} | ActivityHub{% endblock %}
+
+{% block content %}
+<section class="panel reveal">
+    <div class="section-row">
+        <div>
+            <p class="eyebrow">Posts</p>
+            <h1>{% if is_edit %}Edit post{% else %}Create new post{% endif %}</h1>
+        </div>
+        <a href="{% url 'searcher:posts' %}" class="btn btn-secondary">Back to posts</a>
+    </div>
+
+    <form method="post" class="form-grid" id="search-form">
+        {% csrf_token %}
+        {% for field in form %}
+            <label class="form-field">
+                <span>{{ field.label }}</span>
+                {{ field }}
+                {% if field.errors %}
+                    <small class="field-error">{{ field.errors|striptags }}</small>
+                {% endif %}
+            </label>
+        {% endfor %}
+        <button type="submit" class="btn btn-primary" data-submit-label="Saving...">
+            <span class="spinner" aria-hidden="true"></span>
+            <span>{% if is_edit %}Update post{% else %}Create post{% endif %}</span>
+        </button>
+    </form>
+</section>
+{% endblock %}

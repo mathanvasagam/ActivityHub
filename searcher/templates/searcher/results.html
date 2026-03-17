@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+
+{% block title %}Results | ActivityHub{% endblock %}
+
+{% block content %}
+<section class="panel reveal">
+    <p class="eyebrow">Result Overview</p>
+    <h1>{{ query.profile_name|default:'Profile Result' }}</h1>
+    <div class="metrics-grid">
+        <div class="metric-card">
+            <span>Profile Link</span>
+            <a href="{{ query.profile_url }}" target="_blank" rel="noopener">Open profile</a>
+        </div>
+        <div class="metric-card">
+            <span>Tag Name</span>
+            <strong>{{ query.hashtag }}</strong>
+        </div>
+        <div class="metric-card">
+            <span>Matching Posts</span>
+            <strong>{{ query.total_posts }}</strong>
+        </div>
+    </div>
+</section>
+
+<section class="panel reveal-delay-1">
+    <div class="section-row">
+        <h2>Post links</h2>
+        <a href="{% url 'searcher:search' %}" class="btn btn-secondary">New search</a>
+    </div>
+
+    <form method="get" class="filter-row">
+        <label class="form-field compact-field">
+            <span>Time filter</span>
+            {{ filter_form.period }}
+        </label>
+        <label class="form-field compact-field">
+            <span>Start date</span>
+            {{ filter_form.start_date }}
+        </label>
+        <label class="form-field compact-field">
+            <span>End date</span>
+            {{ filter_form.end_date }}
+        </label>
+        <button type="submit" class="btn btn-secondary">Apply filter</button>
+    </form>
+
+    {% if filter_form.non_field_errors %}
+        <p class="field-error">{{ filter_form.non_field_errors|striptags }}</p>
+    {% endif %}
+
+    <p class="muted">Showing {{ active_posts_count }} posts for selected time range.</p>
+
+    {% if posts %}
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Post URL</th>
+                        <th>Date</th>
+                        <th>Snippet</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for post in posts %}
+                        <tr>
+                            <td><a href="{{ post.post_url }}" target="_blank" rel="noopener">{{ post.post_url }}</a></td>
+                            <td>{{ post.post_date|default:'-' }}</td>
+                            <td>{{ post.snippet|default:'-' }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p class="muted">No posts matched this tag name for the fetched content.</p>
+    {% endif %}
+</section>
+{% endblock %}

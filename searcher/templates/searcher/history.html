@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+
+{% block title %}My Posts | ActivityHub{% endblock %}
+
+{% block content %}
+<section class="panel reveal">
+    <div class="section-row">
+        <div>
+            <p class="eyebrow">My Records</p>
+            <h1>My LinkedIn post entries</h1>
+        </div>
+        <a href="{% url 'searcher:search' %}" class="btn btn-secondary">Back to dashboard</a>
+    </div>
+
+    <form method="get" class="filter-row">
+        <label class="form-field compact-field">
+            <span>Company</span>
+            {{ filter_form.company_name }}
+        </label>
+        <label class="form-field compact-field">
+            <span>Start date</span>
+            {{ filter_form.start_date }}
+        </label>
+        <label class="form-field compact-field">
+            <span>End date</span>
+            {{ filter_form.end_date }}
+        </label>
+        <button type="submit" class="btn btn-secondary">Apply filter</button>
+    </form>
+
+    {% if filter_form.non_field_errors %}
+        <p class="field-error">{{ filter_form.non_field_errors|striptags }}</p>
+    {% endif %}
+
+    {% if posts %}
+        <div class="table-wrap">
+            <table>
+                <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Company</th>
+                    <th>Posted At</th>
+                    <th>Post Link</th>
+                    <th>Notes</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for post in posts %}
+                    <tr>
+                        <td>{{ post.post_title }}</td>
+                        <td>{{ post.company_name }}</td>
+                        <td>{{ post.posted_at|date:'Y-m-d H:i' }}</td>
+                        <td><a href="{{ post.post_url }}" target="_blank" rel="noopener">Open</a></td>
+                        <td>{{ post.notes|default:'-' }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p class="muted">No posts match this filter.</p>
+    {% endif %}
+</section>
+{% endblock %}

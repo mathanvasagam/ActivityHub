@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+
+{% block title %}Home | ActivityHub{% endblock %}
+
+{% block content %}
+<section class="hero-card workspace-hero reveal">
+    <div>
+        <p class="eyebrow">Workspace</p>
+        <h1>Your content operations dashboard.</h1>
+        <p>Manage social output across domains with one clean workflow.</p>
+    </div>
+    <button type="button" class="btn btn-primary" data-open-create-modal="true">Create Content</button>
+</section>
+
+<section class="metrics-grid reveal-delay-1 workspace-metrics-grid">
+    <div class="metric-card">
+        <span>Total My Posts</span>
+        <strong>{{ total_posts }}</strong>
+    </div>
+    <div class="metric-card">
+        <span>Last 7 Days</span>
+        <strong>{{ last_7_days }}</strong>
+    </div>
+    <div class="metric-card">
+        <span>Total My Projects</span>
+        <strong>{{ total_projects }}</strong>
+    </div>
+    <div class="metric-card">
+        <span>Total Blogs</span>
+        <strong>{{ total_blogs }}</strong>
+    </div>
+    <div class="metric-card">
+        <span>Total Research Papers</span>
+        <strong>{{ total_research_papers }}</strong>
+    </div>
+</section>
+
+<section class="panel reveal-delay-1">
+    <div class="section-row">
+        <div>
+            <p class="eyebrow">Post Feed</p>
+            <h2>Filtered social content</h2>
+        </div>
+        <a href="{% url 'searcher:posts' %}" class="btn btn-secondary">Open Full Posts Page</a>
+    </div>
+
+    <form method="get" class="filter-row filter-row-five">
+        <label class="form-field compact-field">
+            <span>Period</span>
+            {{ filter_form.period }}
+        </label>
+        <label class="form-field compact-field">
+            <span>Company</span>
+            {{ filter_form.company_name }}
+        </label>
+        <label class="form-field compact-field">
+            <span>Start date</span>
+            {{ filter_form.start_date }}
+        </label>
+        <label class="form-field compact-field">
+            <span>End date</span>
+            {{ filter_form.end_date }}
+        </label>
+        <button type="submit" class="btn btn-secondary">Apply</button>
+    </form>
+
+    {% if posts %}
+        <div class="table-wrap">
+            <table>
+                <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Company</th>
+                    <th>Posted At</th>
+                    <th>Link</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for post in posts|slice:':8' %}
+                    <tr>
+                        <td>{{ post.post_title }}</td>
+                        <td>{{ post.company_name }}</td>
+                        <td>{{ post.posted_at|date:'Y-m-d H:i' }}</td>
+                        <td><a href="{{ post.post_url }}" target="_blank" rel="noopener">Open</a></td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p class="muted">No posts found for this filter.</p>
+    {% endif %}
+</section>
+{% endblock %}
