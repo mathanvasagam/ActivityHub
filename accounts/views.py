@@ -28,14 +28,7 @@ def _ensure_firebase_app():
     if firebase_admin._apps:
         return firebase_admin.get_app()
 
-    service_account_path = settings.FIREBASE_SERVICE_ACCOUNT_PATH
-    if service_account_path:
-        file_path = Path(service_account_path)
-        if not file_path.is_absolute():
-            file_path = Path(settings.BASE_DIR) / service_account_path
-        cred = firebase_credentials.Certificate(str(file_path))
-        return firebase_admin.initialize_app(cred)
-
+    # Priority 1: Use environment variables (works for local AND remote deployment)
     if settings.FIREBASE_PROJECT_ID and settings.FIREBASE_CLIENT_EMAIL and settings.FIREBASE_PRIVATE_KEY:
         cred = firebase_credentials.Certificate(
             {
@@ -47,6 +40,16 @@ def _ensure_firebase_app():
             }
         )
         return firebase_admin.initialize_app(cred)
+
+    # Priority 2: Fallback to file path (for legacy support)
+    service_account_path = settings.FIREBASE_SERVICE_ACCOUNT_PATH
+    if service_account_path:
+        file_path = Path(service_account_path)
+        if not file_path.is_absolute():
+            file_path = Path(settings.BASE_DIR) / service_account_path
+        if file_path.exists():
+            cred = firebase_credentials.Certificate(str(file_path))
+            return firebase_admin.initialize_app(cred)
 
     raise ValueError("Firebase admin credentials are not configured.")
 

@@ -27,6 +27,9 @@
                     <span>Confirm password</span>
                     <input type="password" id="firebase-signup-password2" placeholder="Re-enter password" autocomplete="new-password" required>
                 </label>
+                <div class="auth-center-action">
+                    <button type="button" class="btn btn-secondary" data-toggle-password-group="firebase-signup-password,firebase-signup-password2">Show passwords</button>
+                </div>
                 <button type="button" id="firebase-email-signup" class="btn btn-primary">Create an account</button>
                 <small id="firebase-signup-error" class="field-error" hidden></small>
                 
@@ -48,6 +51,9 @@
                         {% endif %}
                     </label>
                 {% endfor %}
+                <div class="auth-center-action">
+                    <button type="button" class="btn btn-secondary" data-toggle-password-group="id_password1,id_password2">Show passwords</button>
+                </div>
                 <button type="submit" class="btn btn-primary">Create account</button>
             </form>
         {% endif %}

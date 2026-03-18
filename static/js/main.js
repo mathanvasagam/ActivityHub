@@ -39,6 +39,44 @@
         });
     });
 
+    // Toggle password visibility for single password inputs.
+    document.querySelectorAll("[data-toggle-password]").forEach(function (button) {
+        button.addEventListener("click", function () {
+            const targetId = button.getAttribute("data-toggle-password");
+            const input = targetId ? document.getElementById(targetId) : null;
+            if (!input) {
+                return;
+            }
+            const show = input.type === "password";
+            input.type = show ? "text" : "password";
+            button.textContent = show ? "Hide password" : "Show password";
+        });
+    });
+
+    // Toggle password visibility for grouped password inputs.
+    document.querySelectorAll("[data-toggle-password-group]").forEach(function (button) {
+        button.addEventListener("click", function () {
+            const ids = (button.getAttribute("data-toggle-password-group") || "")
+                .split(",")
+                .map(function (v) { return v.trim(); })
+                .filter(Boolean);
+
+            const inputs = ids
+                .map(function (id) { return document.getElementById(id); })
+                .filter(Boolean);
+
+            if (!inputs.length) {
+                return;
+            }
+
+            const shouldShow = inputs.some(function (input) { return input.type === "password"; });
+            inputs.forEach(function (input) {
+                input.type = shouldShow ? "text" : "password";
+            });
+            button.textContent = shouldShow ? "Hide passwords" : "Show passwords";
+        });
+    });
+
     const openButtons = document.querySelectorAll("[data-modal-open]");
 
     function closeModal(modal) {
@@ -108,10 +146,9 @@
 
     const firebaseConfigNode = document.getElementById("firebase-web-config");
     const firebaseEmailButton = document.getElementById("firebase-email-login");
-    const firebaseGoogleButton = document.getElementById("firebase-google-login");
     const firebaseSignupButton = document.getElementById("firebase-email-signup");
 
-    if (firebaseConfigNode && (firebaseEmailButton || firebaseGoogleButton || firebaseSignupButton)) {
+    if (firebaseConfigNode && (firebaseEmailButton || firebaseSignupButton)) {
         const errorNode = document.getElementById("firebase-login-error");
         const signupErrorNode = document.getElementById("firebase-signup-error");
         const emailInput = document.getElementById("firebase-email");
@@ -139,8 +176,21 @@
             if (firebaseEmailButton) {
                 firebaseEmailButton.disabled = disabled;
             }
-            if (firebaseGoogleButton) {
-                firebaseGoogleButton.disabled = disabled;
+        };
+
+        const setLoading = function (isLoading) {
+            const spinner = document.getElementById("login-spinner");
+            const label = document.getElementById("login-label");
+            const status = document.getElementById("login-status");
+            if (firebaseEmailButton) {
+                firebaseEmailButton.dataset.loading = isLoading ? "true" : "false";
+                firebaseEmailButton.setAttribute("aria-busy", isLoading ? "true" : "false");
+            }
+            if (spinner && label) {
+                label.textContent = isLoading ? "Logging in..." : "Sign in";
+            }
+            if (status) {
+                status.textContent = isLoading ? "Logging in, please wait..." : "";
             }
         };
 
@@ -207,15 +257,15 @@
                 event.preventDefault();
                 clearError(errorNode);
                 setDisabled(true);
+                setLoading(true);
+                const loginForm = firebaseEmailButton.closest("form");
+                const identifier = (emailInput && emailInput.value || "").trim();
+                const password = (passwordInput && passwordInput.value || "").trim();
+                const looksLikeEmail = identifier.includes("@");
                 try {
-                    const identifier = (emailInput && emailInput.value || "").trim();
-                    const password = (passwordInput && passwordInput.value || "").trim();
                     if (!identifier || !password) {
                         throw new Error("Enter email and password first.");
                     }
-
-                    const loginForm = firebaseEmailButton.closest("form");
-                    const looksLikeEmail = identifier.includes("@");
                     if (!looksLikeEmail) {
                         // Username login should go through normal Django auth flow.
                         if (loginForm && typeof loginForm.requestSubmit === "function") {
@@ -231,31 +281,24 @@
                     const idToken = await creds.user.getIdToken();
                     await exchangeToken(idToken, password);
                 } catch (error) {
-                    showError(error.message || "Firebase email login failed.", errorNode);
-                    const loginForm = firebaseEmailButton.closest("form");
+                    // If Firebase auth fails, try standard Django login.
+                    // Django LoginForm already supports email -> username mapping.
+                    const status = document.getElementById("login-status");
+                    if (status) {
+                        status.textContent = "Trying standard login...";
+                    }
                     if (loginForm && typeof loginForm.requestSubmit === "function") {
                         loginForm.requestSubmit();
                         return;
                     }
-                    setDisabled(false);
-                }
-            });
-        }
+                    if (loginForm) {
+                        loginForm.submit();
+                        return;
+                    }
 
-        if (firebaseGoogleButton) {
-            firebaseGoogleButton.addEventListener("click", async function (event) {
-                event.preventDefault();
-                clearError(errorNode);
-                setDisabled(true);
-                try {
-                    const ref = await getFirebaseRef();
-                    const provider = new ref.mod.GoogleAuthProvider();
-                    const result = await ref.mod.signInWithPopup(ref.auth, provider);
-                    const idToken = await result.user.getIdToken();
-                    await exchangeToken(idToken, "");
-                } catch (error) {
-                    showError(error.message || "Firebase Google login failed.", errorNode);
+                    showError(error.message || "Login failed. Please try again.", errorNode);
                     setDisabled(false);
+                    setLoading(false);
                 }
             });
         }

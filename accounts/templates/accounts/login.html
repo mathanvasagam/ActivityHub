@@ -20,6 +20,9 @@
             <form method="post" class="form-grid" action="{% url 'accounts:login' %}">
                 {% csrf_token %}
                 <div class="firebase-auth-box">
+                    {% if form.non_field_errors %}
+                        <small class="field-error">{{ form.non_field_errors|striptags }}</small>
+                    {% endif %}
                     <label class="form-field">
                         <span>Username or Email</span>
                         <input type="text" id="firebase-email" name="username" placeholder="username or you@example.com" autocomplete="username" required>
@@ -29,9 +32,16 @@
                         <input type="password" id="firebase-password" name="password" placeholder="Your password" autocomplete="current-password" required>
                     </label>
                     <div class="auth-center-action">
-                        <button type="submit" id="firebase-email-login" class="btn btn-primary">Sign in</button>
+                        <button type="button" class="btn btn-secondary" data-toggle-password="firebase-password">Show password</button>
+                    </div>
+                    <div class="auth-center-action">
+                        <button type="submit" id="firebase-email-login" class="btn btn-primary">
+                            <span id="login-spinner" class="spinner" aria-hidden="true"></span>
+                            <span id="login-label">Sign in</span>
+                        </button>
                     </div>
                     <small id="firebase-login-error" class="field-error" hidden></small>
+                    <p id="login-status" class="muted" aria-live="polite"></p>
                     <p class="muted">If the secure popup is blocked, this button will use the basic form instead.</p>
                 </div>
             </form>
@@ -50,15 +60,16 @@
                     </label>
                 {% endfor %}
                 <div class="auth-center-action">
+                    <button type="button" class="btn btn-secondary" data-toggle-password="id_password">Show password</button>
+                </div>
+                <div class="auth-center-action">
                     <button type="submit" class="btn btn-primary">Sign in</button>
                 </div>
             </form>
         {% endif %}
         <div class="auth-actions">
-            <a href="{% url 'accounts:forgot-password-request' %}">Forgot password?</a>
             <a href="{% url 'accounts:signup' %}" class="btn btn-secondary auth-signup-link">Create account</a>
         </div>
-        <p class="muted">No account yet? <a href="{% url 'accounts:signup' %}">Create one</a>.</p>
     </div>
 </section>
 {% endblock %}
